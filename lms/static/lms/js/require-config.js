@@ -39,6 +39,7 @@
         defineDependency("Logger", "logger");
         defineDependency("URI", "URI");
         defineDependency("Backbone", "backbone");
+        defineDependency("Modernizr", "modernizr");
 
         // Add the UI Toolkit helper classes that have been installed in the "edx" namespace
         defineDependency("edx.HtmlUtils", "edx-ui-toolkit/js/utils/html-utils");
@@ -73,7 +74,10 @@
             "URI": "js/vendor/URI.min",
             "string_utils": "js/src/string_utils",
             "utility": "js/src/utility",
-            "draggabilly": "js/vendor/draggabilly.pkgd",
+            "modernizr": "js/vendor/afontgarde/modernizr.fontface-generatedcontent",
+            "afontgarde": "js/vendor/afontgarde/afontgarde",
+            "edxicons": "js/vendor/afontgarde/edx-icons",
+            "draggabilly": "js/vendor/draggabilly",
 
             // Files needed by OVA
             "annotator": "js/vendor/ova/annotator-full",
@@ -201,7 +205,19 @@
             "moment-with-locales": {
                 exports: "moment"
             },
+            "modernizr": {
+                exports: "Modernizr"
+            },
+            "afontgarde": {
+                deps: ["jquery", "modernizr"],
+                exports: "AFontGarde"
+            },
+            "edxicons": {
+                deps: ["jquery", "modernizr", "afontgarde"],
+                exports: "edxicons"
+            },
             "draggabilly": {
+                deps: ["jquery"],
                 exports: "Draggabilly"
             }
         }

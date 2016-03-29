@@ -989,3 +989,8 @@ if settings.FEATURES.get('ENABLE_FINANCIAL_ASSISTANCE_FORM'):
             name='submit_financial_assistance_request'
         )
     )
+
+# URLs for API access management
+urlpatterns += (
+    url(r'^api-request', include('openedx.core.djangoapps.api_admin.urls')),
+)

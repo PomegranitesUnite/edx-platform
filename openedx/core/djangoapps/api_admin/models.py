@@ -7,6 +7,7 @@ from django.utils.translation import ugettext as _
 from django_extensions.db.models import TimeStampedModel
 from simple_history.models import HistoricalRecords
 
+from config_models.models import ConfigurationModel
 
 log = logging.getLogger(__name__)
 
@@ -22,7 +23,7 @@ class ApiAccessRequest(TimeStampedModel):
         (DENIED, _('Denied')),
         (APPROVED, _('Approved')),
     )
-    user = models.ForeignKey(User)
+    user = models.OneToOneField(User)
     status = models.CharField(
         max_length=255,
         choices=STATUS_CHOICES,
@@ -45,7 +46,24 @@ class ApiAccessRequest(TimeStampedModel):
         Returns:
             bool
         """
-        return cls.objects.filter(user=user, status=cls.APPROVED).exists()
+        return cls.api_access_status(user) == cls.APPROVED
+
+    @classmethod
+    def api_access_status(cls, user):
+        """
+        Returns the user's API access status, or None if they have not
+        requested access.
+
+        Arguments:
+            user (User): The user to check access for.
+
+        Returns:
+            str or None
+        """
+        try:
+            return cls.objects.get(user=user).status
+        except cls.DoesNotExist:
+            return None
 
     def approve(self):
         """Approve this request."""
@@ -61,3 +79,7 @@ class ApiAccessRequest(TimeStampedModel):
 
     def __unicode__(self):
         return u'ApiAccessRequest {website} [{status}]'.format(website=self.website, status=self.status)
+
+
+class ApiAccessConfig(ConfigurationModel):
+    pass

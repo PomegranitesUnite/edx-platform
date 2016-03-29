@@ -1,5 +1,6 @@
 # pylint: disable=missing-docstring
 import ddt
+from django.db import IntegrityError
 from django.test import TestCase
 
 from openedx.core.djangoapps.api_admin.models import ApiAccessRequest
@@ -42,3 +43,11 @@ class ApiAccessRequestTests(TestCase):
         self.request.status = status
         self.request.save()  # pylint: disable=no-member
         self.assertEqual(ApiAccessRequest.has_api_access(self.user), should_have_access)
+
+    def test_unique_per_user(self):
+        with self.assertRaises(IntegrityError):
+            ApiAccessRequestFactory(user=self.user)
+
+    def test_no_access(self):
+        self.request.delete()  # pylint: disable=no-member
+        self.assertIsNone(ApiAccessRequest.api_access_status(self.user))

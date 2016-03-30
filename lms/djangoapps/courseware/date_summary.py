@@ -213,6 +213,27 @@ class VerifiedUpgradeDeadlineDate(DateSummary):
             return ecommerce_service.checkout_page_url(course_mode.sku)
         return reverse('verify_student_upgrade_and_verify', args=(self.course.id,))
 
+    @property
+    def is_enabled(self):
+        """
+        Whether or not this summary block should be shown.
+
+        By default, the summary is only shown if it has date and the date is in the
+        future and the user's enrollment is in upsell modes
+        """
+        if self.date is None:
+            return False
+
+        is_enabled = super(VerifiedUpgradeDeadlineDate, self).is_enabled
+        enrollment_mode, is_active = CourseEnrollment.enrollment_mode_for_user(self.user, self.course.id)
+
+        # Show the summary if user enrollment is in which allow user to upsell
+        allowed_to_upsell = (
+            enrollment_mode is not None and is_active and enrollment_mode in CourseMode.UPSELL_TO_VERIFIED_MODES
+        )
+
+        return is_enabled and allowed_to_upsell
+
     @lazy
     def date(self):
         try:

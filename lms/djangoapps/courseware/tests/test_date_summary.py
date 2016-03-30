@@ -43,6 +43,7 @@ class CourseDateSummaryTest(SharedModuleStoreTestCase):
             days_till_end=14,
             days_till_upgrade_deadline=4,
             enrollment_mode=CourseMode.VERIFIED,
+            course_min_price=100,
             days_till_verification_deadline=14,
             verification_status=None,
             sku=None
@@ -64,6 +65,7 @@ class CourseDateSummaryTest(SharedModuleStoreTestCase):
                 course_id=self.course.id,
                 mode_slug=enrollment_mode,
                 expiration_datetime=now + timedelta(days=days_till_upgrade_deadline),
+                min_price=course_min_price,
                 sku=sku
             )
             CourseEnrollmentFactory.create(course_id=self.course.id, user=self.user, mode=enrollment_mode)
@@ -95,21 +97,36 @@ class CourseDateSummaryTest(SharedModuleStoreTestCase):
         self.assertEqual(set(type(b) for b in blocks), set(expected_blocks))
 
     @ddt.data(
-        # Before course starts
-        ({}, (CourseEndDate, CourseStartDate, TodaysDate, VerificationDeadlineDate, VerifiedUpgradeDeadlineDate)),
-        # After course end
+        # Verified enrollment with no photo-verification before course start
+        ({}, (CourseEndDate, CourseStartDate, TodaysDate, VerificationDeadlineDate)),
+        # Verified enrollment with `approved` photo-verification after course end
         ({'days_till_start': -10,
           'days_till_end': -5,
           'days_till_upgrade_deadline': -6,
           'days_till_verification_deadline': -5,
           'verification_status': 'approved'},
          (TodaysDate, CourseEndDate)),
-        # No course end date
+        # Verified enrollment with `expired` photo-verification during course run
+        ({'days_till_start': -10,
+          'verification_status': 'expired'},
+         (TodaysDate, CourseEndDate, VerificationDeadlineDate)),
+        # Verified enrollment with `approved` photo-verification during course run
+        ({'days_till_start': -10,
+          'verification_status': 'approved'},
+         (TodaysDate, CourseEndDate)),
+        # Audit enrollment and non-upsell course.
+        ({'days_till_start': -10,
+          'days_till_upgrade_deadline': None,
+          'days_till_verification_deadline': None,
+          'course_min_price': 0,
+          'enrollment_mode': CourseMode.AUDIT},
+         (TodaysDate, CourseEndDate)),
+        # Verified enrollment with *NO* course end date
         ({'days_till_end': None},
-         (CourseStartDate, TodaysDate, VerificationDeadlineDate, VerifiedUpgradeDeadlineDate)),
-        # During course run
+         (CourseStartDate, TodaysDate, VerificationDeadlineDate)),
+        # Verified enrollment with no photo-verification during course run
         ({'days_till_start': -1},
-         (TodaysDate, CourseEndDate, VerificationDeadlineDate, VerifiedUpgradeDeadlineDate)),
+         (TodaysDate, CourseEndDate, VerificationDeadlineDate)),
         # Verification approved
         ({'days_till_start': -10,
           'days_till_upgrade_deadline': -1,
@@ -117,7 +134,8 @@ class CourseDateSummaryTest(SharedModuleStoreTestCase):
           'verification_status': 'approved'},
          (TodaysDate, CourseEndDate)),
         # After upgrade deadline
-        ({'days_till_start': -10, 'days_till_upgrade_deadline': -1},
+        ({'days_till_start': -10,
+          'days_till_upgrade_deadline': -1},
          (TodaysDate, CourseEndDate, VerificationDeadlineDate)),
         # After verification deadline
         ({'days_till_start': -10,

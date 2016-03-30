@@ -33,8 +33,8 @@
             'jasmine-stealth': 'js/vendor/jasmine-stealth',
             'jasmine.async': 'js/vendor/jasmine.async',
             'URI': 'js/vendor/URI.min',
-            'modernizr': 'js/vendor/afontgarde/modernizr.fontface-generatedcontent',
-            'afontgarde': 'js/vendor/afontgarde/afontgarde',
+            'modernizr': 'edx-pattern-library/js/modernizr-custom',
+            'afontgarde': 'edx-pattern-library/js/afontgarde',
             'edxicons': 'js/vendor/afontgarde/edx-icons',
             'draggabilly': 'js/vendor/draggabilly'
         },
@@ -158,11 +158,9 @@
                 exports: "Modernizr"
             },
             "afontgarde": {
-                deps: ["jquery", "modernizr"],
                 exports: "AFontGarde"
             },
             "edxicons": {
-                deps: ["jquery", "modernizr", "afontgarde"],
                 exports: "edxicons"
             },
             "draggabilly": {

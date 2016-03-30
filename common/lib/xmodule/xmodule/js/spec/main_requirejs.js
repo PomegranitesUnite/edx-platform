@@ -2,8 +2,8 @@
     requirejs.config({
         paths: {
             "moment": "xmodule/include/common_static/js/vendor/moment.min",
-            "modernizr": "xmodule/include/common_static/js/vendor/afontgarde/modernizr.fontface-generatedcontent",
-            "afontgarde": "xmodule/include/common_static/js/vendor/afontgarde/afontgarde",
+            "modernizr": "xmodule/include/common_static/edx-pattern-library/js/modernizr-custom",
+            "afontgarde": "xmodule/include/common_static/edx-pattern-library/js/afontgarde",
             "edxicons": "xmodule/include/common_static/js/vendor/afontgarde/edx-icons",
             "draggabilly": "xmodule/include/common_static/js/vendor/draggabilly"
         },
@@ -14,11 +14,9 @@
             exports: "Modernizr"
         },
         "afontgarde": {
-            deps: ["jquery", "modernizr"],
             exports: "AFontGarde"
         },
         "edxicons": {
-            deps: ["jquery", "modernizr", "afontgarde"],
             exports: "edxicons"
         },
         "draggabilly": {

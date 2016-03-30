@@ -1263,7 +1263,7 @@ base_vendor_js = [
     'js/RequireJS-namespace-undefine.js',
     'js/vendor/URI.min.js',
     'js/vendor/backbone-min.js',
-    'js/vendor/afontgarde/modernizr.fontface-generatedcontent.js',
+    'edx-pattern-library/js/modernizr-custom.js',
 ]
 
 main_vendor_js = base_vendor_js + [
@@ -1373,7 +1373,7 @@ credit_web_view_js = [
 PIPELINE_CSS = {
     'style-vendor': {
         'source_filenames': [
-            'js/vendor/afontgarde/afontgarde.css',
+            'edx-pattern-library/js/afontgarde.css',
             'css/vendor/font-awesome.css',
             'css/vendor/jquery.qtip.min.css',
         ],
@@ -1660,7 +1660,7 @@ REQUIRE_JS_PATH_OVERRIDES = {
     'js/student_profile/views/learner_profile_factory': 'js/student_profile/views/learner_profile_factory.js',
     'js/bookmarks/bookmarks_factory': 'js/bookmarks/bookmarks_factory.js',
     'js/groups/views/cohorts_dashboard_factory': 'js/groups/views/cohorts_dashboard_factory.js',
-    'afontgarde': 'js/vendor/afontgarde/afontgarde.js',
+    'afontgarde': 'edx-pattern-library/js/afontgarde.js',
     'edx-icons': 'js/vendor/afontgarde/edx-icons.js',
     'draggabilly': 'js/vendor/draggabilly.js'
 }

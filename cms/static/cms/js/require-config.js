@@ -66,8 +66,8 @@
             "URI": "js/vendor/URI.min",
             "ieshim": "js/src/ie_shim",
             "tooltip_manager": "js/src/tooltip_manager",
-            "modernizr": "js/vendor/afontgarde/modernizr.fontface-generatedcontent",
-            "afontgarde": "js/vendor/afontgarde/afontgarde",
+            "modernizr": "edx-pattern-library/js/modernizr-custom",
+            "afontgarde": "edx-pattern-library/afontgarde",
             "edxicons": "js/vendor/afontgarde/edx-icons",
             "draggabilly": "js/vendor/draggabilly",
 
@@ -255,11 +255,9 @@
                 exports: "Modernizr"
             },
             "afontgarde": {
-                deps: ["jquery", "modernizr"],
                 exports: "AFontGarde"
             },
             "edxicons": {
-                deps: ["jquery", "modernizr", "afontgarde"],
                 exports: "edxicons"
             },
             "draggabilly": {

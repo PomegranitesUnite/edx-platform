@@ -68,6 +68,10 @@
                 return this;
             },
 
+            renderError: function () {
+                this.$el.text(gettext('Your request could not be completed. Reload the page and try again. If the issue persists, click the Help tab to report the problem.'))
+            },
+
             assign: function (view, selector) {
                 view.setElement(this.$(selector)).render();
             }

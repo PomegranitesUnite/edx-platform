@@ -529,8 +529,8 @@
                         } else {
                             if (state.isTouch) {
                                 self.subtitlesEl.find('.subtitles-menu').html(
-                                    gettext('<li>Transcript will be displayed when you start playing the video.</li>')
-                                );
+                                    gettext('Transcript will be displayed when you start playing the video.')
+                                ).wrap('<li></li>');
                             } else {
                                 self.renderCaption(start, captions);
                             }

@@ -52,22 +52,31 @@ define(["js/views/validation", "codemirror", "js/models/course_update",
 
         setAndValidate: function(attr, value) {
             var targetModel = this.collection.get(this.$currentPost.attr('name'));
+            var prevValue = targetModel.get(attr);
             targetModel.set(attr, value);
-            targetModel.isValid();
+            if (!targetModel.isValid()) {
+                targetModel.set(attr, prevValue);
+            }
         },
 
         handleValidationError : function(model, error) {
             this.clearValidationErrors();
             for (var field in error) {
-                var ele = this.$el.find('#course-update-list .new-update-form');
+                var ele = this.$el.find('#course-update-list .new-update-form #update-date-'+model.cid);
                 this._cacheValidationErrors.push(ele);
                 this.getInputElements(ele).addClass('error');
                 $(ele).parent().append(this.errorTemplate({message : error[field]}));
             }
-            $('.wrapper-notification-warning').addClass('wrapper-notification-warning-w-errors');
             $('.save-button').addClass('is-disabled');
-            $('#notification-warning-title').text(this.error_title);
-            $('#notification-warning-description').text(this.error_message);
+        },
+
+        clearValidationErrors : function() {
+            while (this._cacheValidationErrors.length > 0) {
+                var ele = this._cacheValidationErrors.pop();
+                this.getInputElements(ele).removeClass('error');
+                $(ele).nextAll('.message-error').remove();
+            }
+            $('.save-button').removeClass('is-disabled');
         },
 
         onNew: function(event) {
@@ -227,7 +236,7 @@ define(["js/views/validation", "codemirror", "js/models/course_update",
             else {
                 // close the modal and insert the appropriate data
                 this.$currentPost.removeClass('editing');
-                this.$currentPost.find('.date-display').html(targetModel.get('date'));
+                this.$currentPost.find('.date-display').html($.datepicker.formatDate("MM d, yy", targetModel.get('date')));
                 this.$currentPost.find('.date').val(targetModel.get('date'));
 
                 var content = CourseInfoHelper.changeContentToPreview(

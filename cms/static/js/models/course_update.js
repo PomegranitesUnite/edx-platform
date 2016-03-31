@@ -9,7 +9,7 @@ define(["backbone", "jquery", "jquery.ui"], function(Backbone, $) {
         },
         validate: function(attrs) {
             if (!attrs.date) {
-                return {"date_required": gettext("A date must be specified for this update.")};
+                return {"date_required": gettext("This field must contain a valid date.")};
             }
         }
     });

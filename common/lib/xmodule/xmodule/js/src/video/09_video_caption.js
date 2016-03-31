@@ -520,6 +520,7 @@
                         var results = self.getBoundedCaptions();
                         var start = results.start;
                         var captions = results.captions;
+                        var explanation = gettext('Transcript will be displayed when you start playing the video.');
 
                         if (self.loaded) {
                             if (self.rendered) {
@@ -529,8 +530,8 @@
                         } else {
                             if (state.isTouch) {
                                 self.subtitlesEl.find('.subtitles-menu').html(
-                                    gettext('Transcript will be displayed when you start playing the video.')
-                                ).wrap('<li></li>');
+                                    '<li>' + explanation + '</li>'
+                                );
                             } else {
                                 self.renderCaption(start, captions);
                             }

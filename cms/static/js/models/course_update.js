@@ -8,7 +8,7 @@ define(["backbone", "jquery", "jquery.ui"], function(Backbone, $) {
             "push_notification_selected" : false
         },
         validate: function(attrs) {
-            if (!attrs.date) {
+            if (!attrs.date || $.datepicker.formatDate('MM d, yy', new Date(attrs.date)) != attrs.date) {
                 return {"date_required": gettext("This field must contain a valid date.")};
             }
         }

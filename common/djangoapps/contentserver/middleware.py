@@ -3,8 +3,9 @@ Middleware to serve assets.
 """
 
 import logging
-
 import datetime
+import newrelic.agent
+
 from django.http import (
     HttpResponse, HttpResponseNotModified, HttpResponseForbidden,
     HttpResponseBadRequest, HttpResponseNotFound)
@@ -55,9 +56,24 @@ class StaticContentServer(object):
             except (ItemNotFoundError, NotFoundError):
                 return HttpResponseNotFound()
 
+            # Set the basics for this request.
+            newrelic.agent.add_custom_parameter('contentserver.course_key', loc.course_key)
+            newrelic.agent.add_custom_parameter('contentserver.path', loc.path)
+
+            # Figure out if this is a CDN using us as the origin.
+            is_from_cdn = StaticContentServer.is_cdn_request(request)
+            newrelic.agent.add_custom_parameter('contentserver.from_cdn', 1 if is_from_cdn else 0)
+
+            # Check if this content is locked or not.
+            locked = self.is_content_locked(content)
+            newrelic.agent.add_custom_parameter('contentserver.locked', 1 if locked else 0)
+
             # Check that user has access to the content.
             if not self.is_user_authorized(request, content, loc):
+                newrelic.agent.add_custom_parameter('contentserver.authorized', 0)
                 return HttpResponseForbidden('Unauthorized')
+
+            newrelic.agent.add_custom_parameter('contentserver.authorized', 1)
 
             # Figure out if the client sent us a conditional request, and let them know
             # if this asset has changed since then.
@@ -65,6 +81,7 @@ class StaticContentServer(object):
             if 'HTTP_IF_MODIFIED_SINCE' in request.META:
                 if_modified_since = request.META['HTTP_IF_MODIFIED_SINCE']
                 if if_modified_since == last_modified_at_str:
+                    newrelic.agent.add_custom_parameter('contentserver.not_modified', 1)
                     return HttpResponseNotModified()
 
             # *** File streaming within a byte range ***
@@ -75,6 +92,8 @@ class StaticContentServer(object):
             # http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.35
             response = None
             if request.META.get('HTTP_RANGE'):
+                newrelic.agent.add_custom_parameter('contentserver.ranged', 1)
+
                 # If we have a StaticContent, get a StaticContentStream.  Can't manipulate the bytes otherwise.
                 if type(content) == StaticContent:
                     content = AssetManager.find(loc, as_stream=True)
@@ -146,9 +165,11 @@ class StaticContentServer(object):
         # indicate there should be no caching whatsoever.
         cache_ttl = CourseAssetCacheTtlConfig.get_cache_ttl()
         if cache_ttl > 0 and not is_locked:
+            newrelic.agent.add_custom_parameter('contentserver.cacheable', 1)
             response['Expires'] = StaticContentServer.get_expiration_value(datetime.datetime.utcnow(), cache_ttl)
             response['Cache-Control'] = "public, max-age={ttl}, s-maxage={ttl}".format(ttl=cache_ttl)
         elif is_locked:
+            newrelic.agent.add_custom_parameter('contentserver.cacheable', 0)
             response['Cache-Control'] = "private, no-cache, no-store"
 
         response['Last-Modified'] = content.last_modified_at.strftime(HTTP_DATE_FORMAT)
@@ -159,18 +180,34 @@ class StaticContentServer(object):
         force_header_for_response(response, 'Vary', 'Origin')
 
     @staticmethod
+    def is_cdn_request(request):
+        """
+        Attempts to determine whether or not the given request is coming from a CDN.
+        """
+        user_agent = request.META.get('HTTP_USER_AGENT', '')
+        if user_agent == 'Amazon CloudFront':
+            # This is a CloudFront request.
+            return True
+
+        return False
+
+    @staticmethod
     def get_expiration_value(now, cache_ttl):
         """Generates an RFC1123 datetime string based on a future offset."""
         expire_dt = now + datetime.timedelta(seconds=cache_ttl)
         return expire_dt.strftime(HTTP_DATE_FORMAT)
 
+    def is_content_locked(self, content):
+        """
+        Determines whether or not the given content is locked.
+        """
+        return getattr(content, "locked", False)
+
     def is_user_authorized(self, request, content, location):
         """
         Determines whether or not the user for this request is authorized to view the given asset.
         """
-
-        is_locked = getattr(content, "locked", False)
-        if not is_locked:
+        if not self.is_content_locked(content):
             return True
 
         if not hasattr(request, "user") or not request.user.is_authenticated():

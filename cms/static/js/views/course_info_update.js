@@ -37,6 +37,7 @@ define(["js/views/validation", "codemirror", "js/models/course_update",
                     var newEle = self.template({ updateModel : update, push_notification_enabled : false });
                     $(updateEle).append(newEle);
                     DateUtils.setupDatePicker("date", self, index);
+                    update.isValid();
                 } catch (e) {
                     // ignore
                 }
@@ -62,10 +63,10 @@ define(["js/views/validation", "codemirror", "js/models/course_update",
         handleValidationError : function(model, error) {
             this.clearValidationErrors();
             for (var field in error) {
-                var ele = this.$el.find('#course-update-list .new-update-form #update-date-'+model.cid);
+                var ele = this.$el.find('#course-update-list [name=\"'+model.cid+'\"');
                 this._cacheValidationErrors.push(ele);
-                this.getInputElements(ele).addClass('error');
-                $(ele).parent().append(this.errorTemplate({message : error[field]}));
+                $(ele).find('#update-date-'+model.cid).parent().append(this.errorTemplate({message : error[field]}));
+                $(ele).find('.date-display').parent().append(this.errorTemplate({message : error[field]}));
             }
             $('.save-button').addClass('is-disabled');
         },

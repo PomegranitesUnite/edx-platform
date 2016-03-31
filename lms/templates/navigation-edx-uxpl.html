@@ -35,7 +35,13 @@ site_status_msg = get_site_status_msg(course_id)
 % endif
 </%block>
 
-<header class="${"global slim" if course and not disable_courseware_header else "global-new"}" aria-label="Main" role="banner">
+<%block name="js_extra">
+<%static:require_module module_name="js/header_factory" class_name="HeaderFactory">
+HeaderFactory();
+</%static:require_module>
+</%block>
+
+<header class="${"global slim" if course and not disable_courseware_header else "header-global"}" aria-label="Main" role="banner">
   <div class="${'rwd ' if responsive else ''}wrapper-header nav-container">
     <h1 class="logo" itemscope="" itemtype="http://schema.org/Organization">
       <a href="${marketing_link('ROOT')}" itemprop="url">
@@ -57,15 +63,15 @@ site_status_msg = get_site_status_msg(course_id)
       % if not course or disable_courseware_header:
         % if not nav_hidden:
     <nav aria-label="Main" class="nav-main">
-      <ul class="left nav-global authenticated">
+      <ul class="left list-inline">
         <%block name="navigation_global_links_authenticated">
-          <li class="nav-global-01">
+          <li class="item">
             <a href="${marketing_link('HOW_IT_WORKS')}">${_("How it Works")}</a>
           </li>
-          <li class="nav-global-02">
+          <li class="item">
             <a href="${marketing_link('COURSES')}">${_("Find Courses")}</a>
           </li>
-          <li class="nav-global-03">
+          <li class="item">
             <a href="${marketing_link('SCHOOLS')}">${_("Schools & Partners")}</a>
           </li>
         </%block>
@@ -74,7 +80,7 @@ site_status_msg = get_site_status_msg(course_id)
         % endif
       % endif
 
-    <div class="wrapper-more-actions dropdown-menu-container logged-in">
+    <div class="wrapper-user-menu dropdown-menu-container logged-in js-header-user-menu">
       <a href="${reverse('dashboard')}" class="menu-title">
         <span class="sr-only">${_("Dashboard for:")}</span>
         <%

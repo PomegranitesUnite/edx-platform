@@ -183,6 +183,9 @@ class StaticContentServer(object):
     def is_cdn_request(request):
         """
         Attempts to determine whether or not the given request is coming from a CDN.
+
+        Currently, this is a static check because edx.org only uses CloudFront, but may
+        be expanded in the future.
         """
         user_agent = request.META.get('HTTP_USER_AGENT', '')
         if user_agent == 'Amazon CloudFront':
